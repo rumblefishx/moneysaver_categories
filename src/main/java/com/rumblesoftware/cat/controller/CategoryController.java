@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rumblesoftware.cat.exceptions.CategoryAlreadyExistsException;
+import com.rumblesoftware.cat.exceptions.InvalidDataException;
+import com.rumblesoftware.cat.exceptions.ValidationException;
 import com.rumblesoftware.cat.io.IOConverter;
 import com.rumblesoftware.cat.io.input.dto.CategoryInputDTO;
 import com.rumblesoftware.cat.io.output.dto.CategoryOutputDTO;
@@ -42,7 +44,7 @@ public class CategoryController {
 		
 		try {
 			output = service.addNewCategory(request);
-		} catch(CategoryAlreadyExistsException e) {
+		} catch(ValidationException|InvalidDataException e) {
 			output = converter.castToOutput(request);
 			out.setBody(output);
 			out.addErrorMessage(po.getMessage(e.getMessage()));

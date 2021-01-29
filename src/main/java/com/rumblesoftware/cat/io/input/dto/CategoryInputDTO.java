@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.validation.annotation.Validated;
 
-
 @Validated
 public class CategoryInputDTO implements Serializable {
 
@@ -16,16 +15,16 @@ public class CategoryInputDTO implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 4677532765417210895L;
-	
+
 	@NotNull(message = "{category.new.input.customerId.null}")
 	private Long customerId;
-	
+
 	@NotBlank(message = "{category.new.input.categoryName.blank}")
-	@Length(min = 4,max=20,message="{category.new.input.categoryName.range}")
+	@Length(min = 4, max = 20, message = "{category.new.input.categoryName.range}")
 	private String categoryName;
-	
-	@NotBlank(message="{category.new.input.categoryDescription.blank}")
-	@Length(min = 15,max=70,message="{category.new.input.categoryDescription.range}")
+
+	@NotBlank(message = "{category.new.input.categoryDescription.blank}")
+	@Length(min = 15, max = 70, message = "{category.new.input.categoryDescription.range}")
 	private String categoryDescription;
 
 	public Long getCustomerId() {
@@ -52,6 +51,4 @@ public class CategoryInputDTO implements Serializable {
 		this.categoryDescription = categoryDescription;
 	}
 
-	
-	
 }

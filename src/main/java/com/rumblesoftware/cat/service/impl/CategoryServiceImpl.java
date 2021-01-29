@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.rumblesoftware.cat.business.impl.CategoryExistanceValidator;
+import com.rumblesoftware.cat.business.impl.UserExistanceValidator;
 import com.rumblesoftware.cat.exceptions.CategoryAlreadyExistsException;
 import com.rumblesoftware.cat.io.IOConverter;
 import com.rumblesoftware.cat.io.input.dto.CategoryInputDTO;
@@ -24,17 +26,20 @@ public class CategoryServiceImpl implements CategoryService {
 	@Autowired
 	private IOConverter converter;
 	
+	@Autowired
+	private CategoryExistanceValidator catVal;
+	
+	@Autowired
+	private UserExistanceValidator userVal;
+	
 	@Override
 	public CategoryOutputDTO addNewCategory(CategoryInputDTO input) {
 		CategoryEntity category = null;
 		CategoryOutputDTO output = null;
 		
-		//Category already exists ?
-		Optional<CategoryEntity> result = 
-				repository.findCategoryByNameAndUser(input.getCustomerId(), input.getCategoryName());
-		
-		if(result.isPresent()) 
-			throw new CategoryAlreadyExistsException();
+		//Calling Validations
+		catVal.setNextVal(userVal);
+		catVal.validate(input);
 		
 		category = converter.castToEntity(input);
 		category = repository.save(category);
