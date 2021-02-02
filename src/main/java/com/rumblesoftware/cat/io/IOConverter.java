@@ -3,7 +3,7 @@ package com.rumblesoftware.cat.io;
 import org.springframework.stereotype.Component;
 
 import com.rumblesoftware.cat.io.input.dto.CategoryInputDTO;
-import com.rumblesoftware.cat.io.input.dto.CategoryPatchDTO;
+import com.rumblesoftware.cat.io.input.dto.CategoryPatchInputDTO;
 import com.rumblesoftware.cat.io.output.dto.CategoryOutputDTO;
 import com.rumblesoftware.cat.model.CategoryEntity;
 
@@ -38,7 +38,16 @@ public class IOConverter {
 		return output;
 	}
 	
-	public CategoryEntity updateEntityData(CategoryEntity entity,CategoryPatchDTO patch) {
+	public CategoryOutputDTO castToOutput(CategoryPatchInputDTO input) {
+		CategoryOutputDTO output = new CategoryOutputDTO();
+		output.setCategoryDescription(input.getCategoryDescription());
+		output.setCategoryName(input.getCategoryName());
+		output.setCustomerId(input.getCustomerId());
+		output.setCategoryId(input.getCategoryId());
+		return output;
+	}
+	
+	public CategoryEntity updateEntityData(CategoryEntity entity,CategoryPatchInputDTO patch) {
 		if(patch.getCategoryDescription() != null 
 				&& patch.getCategoryDescription().trim().length() != 0)
 		entity.setCategoryDescription(patch.getCategoryDescription());

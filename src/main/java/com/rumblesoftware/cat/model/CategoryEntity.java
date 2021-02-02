@@ -27,7 +27,7 @@ public class CategoryEntity implements Serializable{
 	private Long customerId;
 	
 	@Id
-	@Column(name = "movement_id")
+	@Column(name = "category_id")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	@GeneratedValue(generator = "increment")
 	private Long categoryId;

@@ -7,20 +7,21 @@ import org.springframework.stereotype.Component;
 
 import com.rumblesoftware.cat.exceptions.InvalidDataException;
 import com.rumblesoftware.cat.exceptions.ValidationException;
+import com.rumblesoftware.cat.io.CandidateToValidationData;
 import com.rumblesoftware.cat.io.input.dto.CategoryInputDTO;
 import com.rumblesoftware.cat.model.CategoryEntity;
 import com.rumblesoftware.cat.repository.CategoryRepository;
 
 @Component
-public class CategoryExistanceValidator extends BaseValidator<CategoryInputDTO> {
+public class CategoryExistanceValidator extends BaseValidator<CandidateToValidationData> {
 	
 	@Autowired
 	private CategoryRepository repository;
 	
-	private static final String EXCEPTION_MESSAGE_ID = "category.new.alreadyexists";
+	private static final String EXCEPTION_MESSAGE_ID = "{category.new.alreadyexists}";
 	
 	@Override
-	public void validate(CategoryInputDTO input) throws InvalidDataException, ValidationException{
+	public void validate(CandidateToValidationData input) throws InvalidDataException, ValidationException{
 		Optional<CategoryEntity> cat = 
 			repository.findCategoryByNameAndUser(
 					input.getCustomerId(),

@@ -17,4 +17,9 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Catego
 	public Optional<CategoryEntity> findCategoryByNameAndUser(
 			@Param("customerId") Long customerId,
 			@Param("categoryName") String categoryName);
+	
+	@Query(value = "Select c from TCategory c where c.customerId = :customerId and c.categoryId=:categoryId")
+	public Optional<CategoryEntity> findCategoryByIds(
+			@Param("customerId") Long customerId,
+			@Param("categoryId") Long categoryId);
 }

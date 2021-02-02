@@ -7,29 +7,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.rumblesoftware.cat.exceptions.InvalidDataException;
 import com.rumblesoftware.cat.exceptions.ValidationException;
-import com.rumblesoftware.cat.io.input.dto.CategoryInputDTO;
+import com.rumblesoftware.cat.io.CandidateToValidationData;
 
 @Component
 @PropertySource(value = "classpath:application.properties")
-public class UserExistanceValidator extends BaseValidator<CategoryInputDTO> {
+public class UserExistanceValidator extends BaseValidator<CandidateToValidationData> {
 	
 	@Value(value = "${ms.customer.profile.service.url}")
 	public String url;
 	
-	private static final String DEFAULT_ERROR_MSG_CODE = "ms.customer.not.found";
+	private static final String DEFAULT_ERROR_MSG_CODE = "{ms.customer.not.found}";
 	
 	@Autowired
 	private RestTemplate restTemplate;
 	
 	@Override
-	public void validate(CategoryInputDTO input) throws InvalidDataException, ValidationException {
+	public void validate(CandidateToValidationData input) throws InvalidDataException, ValidationException {
 		if(input.getCustomerId() == null)
 			throw new InvalidDataException();
 		
