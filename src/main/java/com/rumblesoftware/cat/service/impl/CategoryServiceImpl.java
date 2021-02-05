@@ -1,5 +1,6 @@
 package com.rumblesoftware.cat.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -130,8 +131,22 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public List<CategoryOutputDTO> getAllCustomerCat(Long customerId) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		log.error("[Service Layer] (Find Categories By Customer) Finding categories in the database...");
+		Optional<List<CategoryEntity>> categories = repository.findCategoriesByCustomer(customerId);
+		List<CategoryOutputDTO> results = new ArrayList<CategoryOutputDTO>();
+		
+		
+		
+		if(!categories.isPresent()) {
+			log.error("[Service Layer] (Find Categories By Customer) Category hasn't been found");
+			throw new CategoryNotFoundException();
+		}
+		
+		log.error("[Service Layer] (Find Categories By Customer) Casting results to output...");
+		categories.get().forEach(entity -> results.add(converter.castToOutput(entity)));
+		
+		return results;
 	}
 
 }

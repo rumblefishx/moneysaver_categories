@@ -1,5 +1,6 @@
 package com.rumblesoftware.cat.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,8 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Catego
 	public Optional<CategoryEntity> findCategoryByIds(
 			@Param("customerId") Long customerId,
 			@Param("categoryId") Long categoryId);
+	
+	@Query(value = "Select c from TCategory c where c.customerId = :customerId")
+	public Optional<List<CategoryEntity>> findCategoriesByCustomer(
+			@Param("customerId") Long customerId);
 }

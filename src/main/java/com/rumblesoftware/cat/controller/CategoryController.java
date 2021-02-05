@@ -22,6 +22,7 @@ import com.rumblesoftware.cat.exceptions.ValidationException;
 import com.rumblesoftware.cat.io.IOConverter;
 import com.rumblesoftware.cat.io.input.dto.CategoryInputDTO;
 import com.rumblesoftware.cat.io.input.dto.CategoryPatchInputDTO;
+import com.rumblesoftware.cat.io.output.dto.CategoriesResponse;
 import com.rumblesoftware.cat.io.output.dto.CategoryOutputDTO;
 import com.rumblesoftware.cat.io.output.dto.CategoryResponse;
 import com.rumblesoftware.cat.service.CategoryService;
@@ -44,6 +45,9 @@ public class CategoryController {
 	private static final String UPD_PHASE = "update";
 	
 	private static final String CRT_PHASE = "New category phase";
+	
+	private static final String CAT_NOT_FIND_ERROR = "category.or.user.not.found.message";
+	
 	
 	@RequestMapping(method = RequestMethod.POST,value = "/category")
 	public ResponseEntity<CategoryResponse> addNewCategory(@RequestBody @Valid CategoryInputDTO request,BindingResult br){
@@ -124,11 +128,31 @@ public class CategoryController {
 			log.info("[Controller Layer] (Find category by ids) Delivering exception in the response body");
 			e.printStackTrace();
 			response.setBody(new CategoryOutputDTO());
-			response.addErrorMessage(po.getMessage(e.getMessage()));	
+			response.addErrorMessage(po.getMessage(CAT_NOT_FIND_ERROR));	
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 		}		
 		
 		log.info("[Controller Layer] (Find category by ids) Returning result...");
+		return ResponseEntity.ok(response);
+	}
+	
+	@RequestMapping(value = "/category/customer/{customerId}",method=RequestMethod.GET)
+	private ResponseEntity<CategoriesResponse> getUserCategories(@PathVariable Long customerId){
+		CategoriesResponse response = new CategoriesResponse();
+		
+		log.info("[Controller Layer] (Find categories by user id) receiving request...");
+		try {
+			log.info("[Controller Layer] (Find categories by user id) calling service layer...");
+			response.setBodyItems(service.getAllCustomerCat(customerId));
+			log.info("[Controller Layer] (Find categories by user id) leaving service layer...");
+		} catch(CategoryNotFoundException e) {
+			log.info("[Controller Layer] (Find categories by user id) delivering an exception as result...");
+			e.printStackTrace();				
+			response.addError(po.getMessage(CAT_NOT_FIND_ERROR));
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+		}
+		
+		log.info("[Controller Layer] (Find categories by user id) delivering results...");
 		return ResponseEntity.ok(response);
 	}
 	
