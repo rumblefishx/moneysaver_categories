@@ -43,7 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
 		CategoryEntity category = null;
 		CategoryOutputDTO output = null;
 		
-		log.info("[Service Layer] (Add new category) calling validations...");
+		log.info("[Service Layer] (New category phase) calling validations...");
 		CandidateToValidationData dataToValidate = 
 				new CandidateToValidationData(
 						input.getCustomerId(), 
@@ -55,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
 		
 		category = converter.castToEntity(input);
 		
-		log.info("[Service Layer] (Add new category) Saving data in the database...");
+		log.info("[Service Layer] (New category phase) Saving data in the database...");
 		category = repository.save(category);
 		
 		output = converter.castToOutput(category);

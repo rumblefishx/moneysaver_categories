@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.rumblesoftware.cat.exceptions.CustomerNotFound;
 import com.rumblesoftware.cat.exceptions.InvalidDataException;
 import com.rumblesoftware.cat.exceptions.ValidationException;
 import com.rumblesoftware.cat.io.CandidateToValidationData;
@@ -23,8 +24,6 @@ public class UserExistanceValidator extends BaseValidator<CandidateToValidationD
 	
 	@Value(value = "${ms.customer.profile.service.url}")
 	public String url;
-	
-	private static final String DEFAULT_ERROR_MSG_CODE = "ms.customer.not.found";
 	
 	private Logger log = LogManager.getLogger(UserExistanceValidator.class);
 	
@@ -44,7 +43,7 @@ public class UserExistanceValidator extends BaseValidator<CandidateToValidationD
 	    } catch(HttpClientErrorException error) {
 	    	if(error.getStatusCode() == HttpStatus.NOT_FOUND) {
 	    		log.error("[validator layer] customer does not exists");
-	    		throw new ValidationException(DEFAULT_ERROR_MSG_CODE);
+	    		throw new CustomerNotFound();
 	    	}	    		
 	    }
 	    		

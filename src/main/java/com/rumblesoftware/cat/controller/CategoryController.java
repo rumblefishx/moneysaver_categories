@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rumblesoftware.cat.exceptions.CategoryNotFoundException;
+import com.rumblesoftware.cat.exceptions.CustomerNotFound;
 import com.rumblesoftware.cat.exceptions.InvalidDataException;
 import com.rumblesoftware.cat.exceptions.ValidationException;
 import com.rumblesoftware.cat.io.IOConverter;
@@ -40,33 +41,36 @@ public class CategoryController {
 	
 	private Logger log = LogManager.getLogger(CategoryController.class);
 	
+	private static final String UPD_PHASE = "update";
+	
+	private static final String CRT_PHASE = "New category phase";
+	
 	@RequestMapping(method = RequestMethod.POST,value = "/category")
 	public ResponseEntity<CategoryResponse> addNewCategory(@RequestBody @Valid CategoryInputDTO request,BindingResult br){
 		CategoryResponse out = new CategoryResponse(); 
 		CategoryOutputDTO output = null;
 		
-		log.info("[Controller Layer] (Add new category) receiving request...");
+		log.info("[Controller Layer] (New category phase) receiving request...");
 		
 		if(br.hasErrors()) {
-			log.info("[Controller Layer] (Add new category) delivering validation errors...");
+			log.info("[Controller Layer] (New category phase) delivering validation errors...");
 			br.getAllErrors().forEach(e -> out.addErrorMessage(e.getDefaultMessage()));
 			out.setBody(converter.castToOutput(request));
 			return ResponseEntity.badRequest().body(out);
 		}
 		
 		try {
-			log.info("[Controller Layer] (Add new category) Calling service layer...");
+			log.info("[Controller Layer] (New category phase) Calling service layer...");
 			output = service.addNewCategory(request);
-			log.info("[Controller Layer] (Add new category) Leaving service layer...");
+			log.info("[Controller Layer] (New category phase) Leaving service layer...");
+		} catch(CustomerNotFound e) {
+			log.info("[Controller Layer] (New category phase) returning an exception");
+			return getResponseArtifactForErrors(converter.castToOutput(request),CRT_PHASE,HttpStatus.NOT_FOUND,e);
 		} catch(ValidationException|InvalidDataException e) {
-			log.info("[Controller Layer] (Add new category) returning an exception");
-			e.printStackTrace();
-			output = converter.castToOutput(request);
-			out.setBody(output);
-			out.addErrorMessage(po.getMessage(e.getMessage()));			
-			return ResponseEntity.badRequest().body(out);
+			log.info("[Controller Layer] (New category phase) returning an exception");
+			return getResponseArtifactForErrors(converter.castToOutput(request),CRT_PHASE,HttpStatus.BAD_REQUEST,e);
 		}
-		log.info("[Controller Layer] (Add new category) returning result");
+		log.info("[Controller Layer] (New category phase) returning result");
 		
 		out.setBody(output);
 		return ResponseEntity.ok(out);
@@ -92,15 +96,13 @@ public class CategoryController {
 			 log.info("[Controller Layer] (Update category) Calling service layer...");
 			 output = service.updateCategory(input);
 			 log.info("[Controller Layer] (Update category) Leaving service layer...");
-		} catch(CategoryNotFoundException|ValidationException
-				|InvalidDataException e) {
+		} catch(CustomerNotFound|CategoryNotFoundException e){	
 			log.info("[Controller Layer] (Update category) returning an exception");
-			e.printStackTrace();
-			output = converter.castToOutput(input);
-			response.setBody(output);
-			response.addErrorMessage(po.getMessage(e.getMessage()));	
-			return ResponseEntity.badRequest().body(response);	
-		}
+			return getResponseArtifactForErrors(converter.castToOutput(input),UPD_PHASE,HttpStatus.NOT_FOUND,e);
+		} catch(ValidationException|InvalidDataException e) {		
+			log.info("[Controller Layer] (Update category) returning an exception");
+			return getResponseArtifactForErrors(converter.castToOutput(input),UPD_PHASE,HttpStatus.BAD_REQUEST,e);
+		} 
 		log.info("[Controller Layer] (Update category) returning result");
 		response.setBody(output);
 		
@@ -128,6 +130,15 @@ public class CategoryController {
 		
 		log.info("[Controller Layer] (Find category by ids) Returning result...");
 		return ResponseEntity.ok(response);
+	}
+	
+	private ResponseEntity<CategoryResponse> getResponseArtifactForErrors(CategoryOutputDTO body,String phase,HttpStatus status, Exception e) {
+		CategoryResponse response = new CategoryResponse();
+		
+		e.printStackTrace();				
+		response.setBody(body);
+		response.addErrorMessage(po.getMessage(e.getMessage()));
+		return ResponseEntity.status(status).body(response);
 	}
 	
 }
