@@ -114,8 +114,18 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public CategoryOutputDTO findCategoryById(Long customerId, Long categoryId) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		log.info("[Service Layer] (Find Category By Ids) Searching data in database...");
+		Optional<CategoryEntity> entity = 
+				repository.findCategoryByIds(customerId, categoryId);
+		
+		if(!entity.isPresent()) {
+			log.error("[Service Layer] (Find Category By Ids) Category hasn't been found");
+			throw new CategoryNotFoundException();	
+		}
+		
+		log.error("[Service Layer] (Find Category By Ids) Category has been found");
+		return converter.castToOutput(entity.get());
 	}
 
 	@Override

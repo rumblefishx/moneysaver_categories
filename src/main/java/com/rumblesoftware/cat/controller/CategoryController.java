@@ -6,8 +6,10 @@ import javax.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -58,6 +60,7 @@ public class CategoryController {
 			log.info("[Controller Layer] (Add new category) Leaving service layer...");
 		} catch(ValidationException|InvalidDataException e) {
 			log.info("[Controller Layer] (Add new category) returning an exception");
+			e.printStackTrace();
 			output = converter.castToOutput(request);
 			out.setBody(output);
 			out.addErrorMessage(po.getMessage(e.getMessage()));			
@@ -92,6 +95,7 @@ public class CategoryController {
 		} catch(CategoryNotFoundException|ValidationException
 				|InvalidDataException e) {
 			log.info("[Controller Layer] (Update category) returning an exception");
+			e.printStackTrace();
 			output = converter.castToOutput(input);
 			response.setBody(output);
 			response.addErrorMessage(po.getMessage(e.getMessage()));	
@@ -100,6 +104,29 @@ public class CategoryController {
 		log.info("[Controller Layer] (Update category) returning result");
 		response.setBody(output);
 		
+		return ResponseEntity.ok(response);
+	}
+	
+	@RequestMapping(method=RequestMethod.GET,value = "/category/{catid}/customer/{custid}")
+	public ResponseEntity<CategoryResponse> findCategoryById(
+			@PathVariable("catid") Long catid,
+			@PathVariable("custid") Long custid){
+		CategoryResponse response = new CategoryResponse();
+		
+		log.info("[Controller Layer] (Find category by ids) receiving request...");
+		
+		try {
+			log.info("[Controller Layer] (Find category by ids) Calling service layer...");
+			response.setBody(service.findCategoryById(custid, catid));
+		} catch(CategoryNotFoundException e) {
+			log.info("[Controller Layer] (Find category by ids) Delivering exception in the response body");
+			e.printStackTrace();
+			response.setBody(new CategoryOutputDTO());
+			response.addErrorMessage(po.getMessage(e.getMessage()));	
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+		}		
+		
+		log.info("[Controller Layer] (Find category by ids) Returning result...");
 		return ResponseEntity.ok(response);
 	}
 	
