@@ -3,11 +3,14 @@ package com.rumblesoftware.cat.service.impl;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.rumblesoftware.cat.business.impl.CategoryExistanceValidator;
 import com.rumblesoftware.cat.business.impl.UserExistanceValidator;
+import com.rumblesoftware.cat.controller.CategoryController;
 import com.rumblesoftware.cat.exceptions.CategoryNotFoundException;
 import com.rumblesoftware.cat.io.CandidateToValidationData;
 import com.rumblesoftware.cat.io.IOConverter;
@@ -33,11 +36,14 @@ public class CategoryServiceImpl implements CategoryService {
 	@Autowired
 	private UserExistanceValidator userVal;
 	
+	private Logger log = LogManager.getLogger(CategoryController.class);
+	
 	@Override
 	public CategoryOutputDTO addNewCategory(CategoryInputDTO input) {
 		CategoryEntity category = null;
 		CategoryOutputDTO output = null;
 		
+		log.info("[Service Layer] (Add new category) calling validations...");
 		CandidateToValidationData dataToValidate = 
 				new CandidateToValidationData(
 						input.getCustomerId(), 
@@ -48,6 +54,8 @@ public class CategoryServiceImpl implements CategoryService {
 		catVal.validate(dataToValidate);
 		
 		category = converter.castToEntity(input);
+		
+		log.info("[Service Layer] (Add new category) Saving data in the database...");
 		category = repository.save(category);
 		
 		output = converter.castToOutput(category);
@@ -66,6 +74,8 @@ public class CategoryServiceImpl implements CategoryService {
 		CategoryEntity updatedCategory = null;
 		Optional<CategoryEntity> actualCategory = null;
 		
+		
+		log.info("[Service Layer] (Update category) calling validations...");
 		//Transfer data to a mid layer dto in order to validate them
 		CandidateToValidationData dataToValidate = 
 				new CandidateToValidationData(
@@ -77,20 +87,24 @@ public class CategoryServiceImpl implements CategoryService {
 		catVal.validate(dataToValidate);
 		
 		//Search the category in the database
+		log.info("[Service Layer] (Update category) Searching category to update...");
 		actualCategory = 
 				repository.findCategoryByIds(
 						patch.getCustomerId(), 
 						patch.getCategoryId());
 		
 		//Throw an exception in case of category not found
-		if(actualCategory.isPresent() == false)
+		if(actualCategory.isPresent() == false) {
+			log.error("[Service Layer] (Update category) Searching category to update...");
 			throw new CategoryNotFoundException();
+		}
 		
 		
 		//Cast input data into a entity instance
 		updatedCategory = 
 				converter.updateEntityData(actualCategory.get(), patch);	
 		
+		log.info("[Service Layer] (Update category) Saving data in the database...");
 		//Save changes in the database
 		updatedCategory = repository.save(updatedCategory);
 		

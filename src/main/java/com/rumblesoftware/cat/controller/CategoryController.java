@@ -1,7 +1,10 @@
 package com.rumblesoftware.cat.controller;
 
+
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -33,47 +36,34 @@ public class CategoryController {
 	@Autowired
 	private PostOfficer po;
 	
-	private static final String GENERIC_INTERNAL_ERROR_MSG = "{app.internal.error.message}";
-	
-	
-	//********************************************
-	//********************************************
-	//********************************************
-	//************* ATENÇÃO          *************
-		//* Adicionar Logger.error nos locais onde lanca excecao
-		//* Otimizar o catch aqui dos metodos do controller
-	
-	//********************************************
-	//********************************************
-	//********************************************
-	
+	private Logger log = LogManager.getLogger(CategoryController.class);
 	
 	@RequestMapping(method = RequestMethod.POST,value = "/category")
 	public ResponseEntity<CategoryResponse> addNewCategory(@RequestBody @Valid CategoryInputDTO request,BindingResult br){
 		CategoryResponse out = new CategoryResponse(); 
 		CategoryOutputDTO output = null;
 		
+		log.info("[Controller Layer] (Add new category) receiving request...");
+		
 		if(br.hasErrors()) {
+			log.info("[Controller Layer] (Add new category) delivering validation errors...");
 			br.getAllErrors().forEach(e -> out.addErrorMessage(e.getDefaultMessage()));
 			out.setBody(converter.castToOutput(request));
 			return ResponseEntity.badRequest().body(out);
 		}
 		
 		try {
+			log.info("[Controller Layer] (Add new category) Calling service layer...");
 			output = service.addNewCategory(request);
-		} catch(Exception e) {
+			log.info("[Controller Layer] (Add new category) Leaving service layer...");
+		} catch(ValidationException|InvalidDataException e) {
+			log.info("[Controller Layer] (Add new category) returning an exception");
 			output = converter.castToOutput(request);
 			out.setBody(output);
-			
-			if(e instanceof ValidationException
-			|| e instanceof InvalidDataException) {
-				out.addErrorMessage(po.getMessage(e.getMessage()));
-			} else {
-				out.addErrorMessage(po.getMessage(GENERIC_INTERNAL_ERROR_MSG));
-			}
-			
+			out.addErrorMessage(po.getMessage(e.getMessage()));			
 			return ResponseEntity.badRequest().body(out);
 		}
+		log.info("[Controller Layer] (Add new category) returning result");
 		
 		out.setBody(output);
 		return ResponseEntity.ok(out);
@@ -83,11 +73,12 @@ public class CategoryController {
 	public ResponseEntity<CategoryResponse> updateCategory(
 			@RequestBody @Valid CategoryPatchInputDTO input,
 			BindingResult br){
-		
+		log.info("[Controller Layer] (Update category) receiving request...");
 		CategoryResponse response = new CategoryResponse();
 		CategoryOutputDTO output = null;
 		
 		if(br.hasErrors()) {
+			log.info("[Controller Layer] (Update category) delivering validation errors...");
 			br.getAllErrors()
 			.forEach(e -> response.addErrorMessage(e.getDefaultMessage()));
 			response.setBody(converter.castToOutput(input));
@@ -95,22 +86,18 @@ public class CategoryController {
 		}
 		
 		try {
+			 log.info("[Controller Layer] (Update category) Calling service layer...");
 			 output = service.updateCategory(input);
-		} catch(Exception e) {
+			 log.info("[Controller Layer] (Update category) Leaving service layer...");
+		} catch(CategoryNotFoundException|ValidationException
+				|InvalidDataException e) {
+			log.info("[Controller Layer] (Update category) returning an exception");
 			output = converter.castToOutput(input);
 			response.setBody(output);
-			
-			if(e instanceof CategoryNotFoundException ||
-			   e instanceof ValidationException ||
-			   e instanceof InvalidDataException) {
-				response.addErrorMessage(po.getMessage(e.getMessage()));	
-			} else {
-				response.addErrorMessage(po.getMessage(GENERIC_INTERNAL_ERROR_MSG));	
-			}
-			
+			response.addErrorMessage(po.getMessage(e.getMessage()));	
 			return ResponseEntity.badRequest().body(response);	
 		}
-		
+		log.info("[Controller Layer] (Update category) returning result");
 		response.setBody(output);
 		
 		return ResponseEntity.ok(response);

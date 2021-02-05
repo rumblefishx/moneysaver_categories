@@ -3,6 +3,8 @@ package com.rumblesoftware.cat.business.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -22,7 +24,9 @@ public class UserExistanceValidator extends BaseValidator<CandidateToValidationD
 	@Value(value = "${ms.customer.profile.service.url}")
 	public String url;
 	
-	private static final String DEFAULT_ERROR_MSG_CODE = "{ms.customer.not.found}";
+	private static final String DEFAULT_ERROR_MSG_CODE = "ms.customer.not.found";
+	
+	private Logger log = LogManager.getLogger(UserExistanceValidator.class);
 	
 	@Autowired
 	private RestTemplate restTemplate;
@@ -38,9 +42,10 @@ public class UserExistanceValidator extends BaseValidator<CandidateToValidationD
 	    try {
 	    	restTemplate.getForEntity(url,String.class,params);
 	    } catch(HttpClientErrorException error) {
-	    	if(error.getStatusCode() == HttpStatus.NOT_FOUND)
+	    	if(error.getStatusCode() == HttpStatus.NOT_FOUND) {
+	    		log.error("[validator layer] customer does not exists");
 	    		throw new ValidationException(DEFAULT_ERROR_MSG_CODE);
-	    		
+	    	}	    		
 	    }
 	    		
 		if(this.nextValidator != null)
