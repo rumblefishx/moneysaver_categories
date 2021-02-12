@@ -16,10 +16,10 @@ public class CategoryPatchInputDTO {
 	@NotNull(message = "{category.patch.input.categoryId.null}")
 	private Long categoryId;	
 	
-	@ValidFilledRange(min=4,max=20,message="{category.patch.input.categoryName.range}")
+	@ValidFilledRange(min=0,max=20,message="{category.patch.input.categoryName.range}")
 	private String categoryName;
 	
-	@ValidFilledRange(min=15,max=70,message="{category.patch.input.categoryDescription.range}")
+	@ValidFilledRange(min=0,max=70,message="{category.patch.input.categoryDescription.range}")
 	private String categoryDescription;
 
 	public Long getCustomerId() {
