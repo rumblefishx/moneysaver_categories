@@ -1,12 +1,15 @@
 package com.rumblesoftware.cat.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -16,18 +19,20 @@ import com.sun.istack.NotNull;
 @Entity(name="TCategory")
 @IdClass(value = CategoryId.class)
 public class CategoryEntity implements Serializable{
-
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6323285193850854513L;
+	
+	private static final String RESPONSIBLE_USER = "category_service";
 
 	@Id
 	@Column(name="customer_id")
 	private Long customerId;
 	
 	@Id
-	@Column(name = "movement_id")
+	@Column(name = "category_id")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	@GeneratedValue(generator = "increment")
 	private Long categoryId;
@@ -41,6 +46,31 @@ public class CategoryEntity implements Serializable{
 	@Size(max = 70)
 	@Column(name = "category_description")
 	private String categoryDescription;
+	
+	@Column(name="creation_date")
+	@NotNull
+	private Date creationDate;
+	
+	@Column(name="last_update")
+	@NotNull
+	private Date lastUpdate;
+	
+	@Column(name="responsible_user")
+	@NotNull
+	private String responsibleUser;
+	
+	@PrePersist
+	@PreUpdate
+	private void setDates() {
+		Date now = new Date();
+		
+		if(this.creationDate == null) 
+			creationDate = now;
+		
+			lastUpdate = now;
+		
+		this.responsibleUser = RESPONSIBLE_USER;
+	}
 
 	public Long getCustomerId() {
 		return customerId;
