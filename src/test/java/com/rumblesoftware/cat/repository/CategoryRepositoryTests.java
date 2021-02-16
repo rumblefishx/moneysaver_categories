@@ -20,9 +20,9 @@ import com.rumblesoftware.cat.model.CategoryEntity;
 public class CategoryRepositoryTests {
 	
 	
-	private static final String VALID_CAT_NAME = "name example";
+	private static final String VALID_CAT_NAME = "category_name";
 	private static final Long VALID_CUSTOMER_ID = 1L; 
-	private static final Long VALID_CATEGORY_ID = 1000L; 
+	private static final Long VALID_CATEGORY_ID = 1001L; 
 	
 	@Autowired
 	private CategoryRepository repository;

@@ -52,7 +52,7 @@ public class CategoryServiceTests {
 	
 	
 	
-	private static final String VALID_CAT_NAME_DUPL = "name example";
+	private static final String VALID_CAT_NAME_DUPL = "name_example";
 
 	@Autowired
 	private CategoryService service;
