@@ -17,6 +17,7 @@ import com.rumblesoftware.cat.exceptions.CustomerNotFound;
 import com.rumblesoftware.cat.exceptions.InvalidDataException;
 import com.rumblesoftware.cat.exceptions.ValidationException;
 import com.rumblesoftware.cat.io.CandidateToValidationData;
+import com.rumblesoftware.utils.PostOfficer;
 
 @Component
 @PropertySource(value = "classpath:application.properties")
@@ -30,10 +31,15 @@ public class UserExistanceValidator extends BaseValidator<CandidateToValidationD
 	@Autowired
 	private RestTemplate restTemplate;
 	
+	@Autowired
+	private PostOfficer po;
+	
 	@Override
 	public void validate(CandidateToValidationData input) throws InvalidDataException, ValidationException {
 		if(input.getCustomerId() == null)
 			throw new InvalidDataException();
+		
+		log.info("[Validation Layer] - Starting Customer Validation...");
 		
 		Map<String, String> params = new HashMap<String, String>();
 	    params.put("id", input.getCustomerId().toString());	
@@ -44,7 +50,12 @@ public class UserExistanceValidator extends BaseValidator<CandidateToValidationD
 	    	if(error.getStatusCode() == HttpStatus.NOT_FOUND) {
 	    		log.error("[validator layer] customer does not exists");
 	    		throw new CustomerNotFound();
-	    	}	    		
+	    	} else {
+	    		log.error("[validator layer] An error occurred during customer validation...");
+	    		log.error(error.getMessage());
+	    		error.printStackTrace();
+	    		throw new InvalidDataException();
+	    	}    		
 	    }
 	    		
 		if(this.nextValidator != null)
