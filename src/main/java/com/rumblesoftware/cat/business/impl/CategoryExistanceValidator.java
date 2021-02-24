@@ -26,7 +26,7 @@ public class CategoryExistanceValidator extends BaseValidator<CandidateToValidat
 	@Override
 	public void validate(CandidateToValidationData input) throws InvalidDataException, ValidationException{
 		
-		log.info("[Validation Layer] - Starting Category Validation...");
+		log.debug("[Validation Layer] - Starting Category Validation...");
 		
 		Optional<CategoryEntity> cat = 
 			repository.findCategoryByNameAndUser(

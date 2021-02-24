@@ -18,7 +18,7 @@ public class IOConverter {
 	private Logger log = LogManager.getLogger(CategoryController.class);
 	
 	public CategoryEntity castToEntity(CategoryInputDTO input) {
-		log.info("Casting Input to Entity artifact...");		
+		log.debug("Casting Input to Entity artifact...");		
 		CategoryEntity entity = new CategoryEntity();
 		
 		entity.setCategoryDescription(input.getCategoryDescription());
@@ -29,7 +29,7 @@ public class IOConverter {
 	}
 	
 	public CategoryOutputDTO castToOutput(CategoryEntity entity) {
-		log.info("Casting entity artifact to output dto...");
+		log.debug("Casting entity artifact to output dto...");
 		CategoryOutputDTO output = new CategoryOutputDTO();
 		output.setCategoryDescription(entity.getCategoryDescription());
 		output.setCategoryId(entity.getCategoryId());
@@ -39,7 +39,7 @@ public class IOConverter {
 	}
 	
 	public CategoryOutputDTO castToOutput(CategoryInputDTO input) {
-		log.info("Casting input dto to output dto...");
+		log.debug("Casting input dto to output dto...");
 		CategoryOutputDTO output = new CategoryOutputDTO();
 		output.setCategoryDescription(input.getCategoryDescription());
 		output.setCategoryName(input.getCategoryName());
@@ -48,7 +48,7 @@ public class IOConverter {
 	}
 	
 	public CategoryOutputDTO castToOutput(CategoryPatchInputDTO input) {
-		log.info("Casting input dto to output dto...");
+		log.debug("Casting input dto to output dto...");
 		CategoryOutputDTO output = new CategoryOutputDTO();
 		output.setCategoryDescription(input.getCategoryDescription());
 		output.setCategoryName(input.getCategoryName());
@@ -58,7 +58,7 @@ public class IOConverter {
 	}
 	
 	public CategoryEntity updateEntityData(CategoryEntity entity,CategoryPatchInputDTO patch) {
-		log.info("Transfering updated data to entity artifact...");
+		log.debug("Transfering updated data to entity artifact...");
 		if(patch.getCategoryDescription() != null 
 				&& patch.getCategoryDescription().trim().length() != 0)
 		entity.setCategoryDescription(patch.getCategoryDescription());

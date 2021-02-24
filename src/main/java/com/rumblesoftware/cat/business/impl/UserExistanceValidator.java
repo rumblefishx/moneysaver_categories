@@ -39,7 +39,7 @@ public class UserExistanceValidator extends BaseValidator<CandidateToValidationD
 		if(input.getCustomerId() == null)
 			throw new InvalidDataException();
 		
-		log.info("[Validation Layer] - Starting Customer Validation...");
+		log.debug("[Validation Layer] - Starting Customer Validation...");
 		
 		Map<String, String> params = new HashMap<String, String>();
 	    params.put("id", input.getCustomerId().toString());	

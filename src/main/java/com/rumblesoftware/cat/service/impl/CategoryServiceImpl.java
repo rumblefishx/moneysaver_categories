@@ -44,7 +44,7 @@ public class CategoryServiceImpl implements CategoryService {
 		CategoryEntity category = null;
 		CategoryOutputDTO output = null;
 		
-		log.info("[Service Layer] (New category phase) calling validations...");
+		log.debug("[Service Layer] (New category phase) calling validations...");
 		CandidateToValidationData dataToValidate = 
 				new CandidateToValidationData(
 						input.getCustomerId(), 
@@ -56,7 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
 		
 		category = converter.castToEntity(input);
 		
-		log.info("[Service Layer] (New category phase) Saving data in the database...");
+		log.debug("[Service Layer] (New category phase) Saving data in the database...");
 		category = repository.save(category);
 		
 		output = converter.castToOutput(category);
@@ -76,7 +76,7 @@ public class CategoryServiceImpl implements CategoryService {
 		Optional<CategoryEntity> actualCategory = null;
 		
 		
-		log.info("[Service Layer] (Update category) calling validations...");
+		log.debug("[Service Layer] (Update category) calling validations...");
 		//Transfer data to a mid layer dto in order to validate them
 		CandidateToValidationData dataToValidate = 
 				new CandidateToValidationData(
@@ -88,7 +88,7 @@ public class CategoryServiceImpl implements CategoryService {
 		catVal.validate(dataToValidate);
 		
 		//Search the category in the database
-		log.info("[Service Layer] (Update category) Searching category to update...");
+		log.debug("[Service Layer] (Update category) Searching category to update...");
 		actualCategory = 
 				repository.findCategoryByIds(
 						patch.getCustomerId(), 
@@ -105,7 +105,7 @@ public class CategoryServiceImpl implements CategoryService {
 		updatedCategory = 
 				converter.updateEntityData(actualCategory.get(), patch);	
 		
-		log.info("[Service Layer] (Update category) Saving data in the database...");
+		log.debug("[Service Layer] (Update category) Saving data in the database...");
 		//Save changes in the database
 		updatedCategory = repository.save(updatedCategory);
 		
@@ -116,7 +116,7 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public CategoryOutputDTO findCategoryById(Long customerId, Long categoryId) {
 		
-		log.info("[Service Layer] (Find Category By Ids) Searching data in database...");
+		log.debug("[Service Layer] (Find Category By Ids) Searching data in database...");
 		Optional<CategoryEntity> entity = 
 				repository.findCategoryByIds(customerId, categoryId);
 		
