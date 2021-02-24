@@ -1,19 +1,27 @@
 package com.rumblesoftware;
 
-import java.time.Duration;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+
+import com.rumblesoftware.utils.LoggingInterceptor;
 
 @SpringBootApplication
 public class MoneySaverCategory {
@@ -58,13 +66,21 @@ public class MoneySaverCategory {
 		return bean;
 	}
 	
-	@Bean
-	@Profile("!webtest")
-	public RestTemplate restTemplate(RestTemplateBuilder builder) {
-	 
-	    return builder
-	            .setConnectTimeout(Duration.ofMillis(3000))
-	            .setReadTimeout(Duration.ofMillis(3000))
-	            .build();
-	}
+//	@Bean
+//	@Profile("!webtest")
+//    public RestTemplate restTemplate() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+//        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+//
+//        RestTemplate restTemplate = new RestTemplate(requestFactory);
+//
+//
+//        List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
+//        if (interceptors.isEmpty()) {
+//            interceptors = new ArrayList<>();
+//        }
+//        interceptors.add(new LoggingInterceptor());
+//        restTemplate.setInterceptors(interceptors);
+//
+//        return restTemplate;
+//    }
 }
