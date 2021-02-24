@@ -14,7 +14,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.rumblesoftware.cat.exceptions.CustomerNotFound;
-import com.rumblesoftware.cat.exceptions.InvalidDataException;
+import com.rumblesoftware.cat.exceptions.InternalValidationErrorException;
 import com.rumblesoftware.cat.exceptions.ValidationException;
 import com.rumblesoftware.cat.io.CandidateToValidationData;
 import com.rumblesoftware.utils.PostOfficer;
@@ -35,9 +35,9 @@ public class UserExistanceValidator extends BaseValidator<CandidateToValidationD
 	private PostOfficer po;
 	
 	@Override
-	public void validate(CandidateToValidationData input) throws InvalidDataException, ValidationException {
+	public void validate(CandidateToValidationData input) throws InternalValidationErrorException, ValidationException {
 		if(input.getCustomerId() == null)
-			throw new InvalidDataException();
+			throw new InternalValidationErrorException();
 		
 		log.debug("[Validation Layer] - Starting Customer Validation...");
 		
@@ -54,7 +54,7 @@ public class UserExistanceValidator extends BaseValidator<CandidateToValidationD
 	    		log.error("[validator layer] An error occurred during customer validation...");
 	    		log.error(error.getMessage());
 	    		error.printStackTrace();
-	    		throw new InvalidDataException();
+	    		throw new InternalValidationErrorException();
 	    	}    		
 	    }
 	    		

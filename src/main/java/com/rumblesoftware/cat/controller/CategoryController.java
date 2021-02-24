@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rumblesoftware.cat.exceptions.CategoryNotFoundException;
 import com.rumblesoftware.cat.exceptions.CustomerNotFound;
-import com.rumblesoftware.cat.exceptions.InvalidDataException;
+import com.rumblesoftware.cat.exceptions.InternalValidationErrorException;
 import com.rumblesoftware.cat.exceptions.ValidationException;
 import com.rumblesoftware.cat.io.IOConverter;
 import com.rumblesoftware.cat.io.input.dto.CategoryInputDTO;
@@ -72,9 +72,12 @@ public class CategoryController {
 		} catch(CustomerNotFound e) {
 			log.debug("[Controller Layer] (New category phase) returning an exception");
 			return getResponseArtifactForErrors(converter.castToOutput(request),CRT_PHASE,HttpStatus.NOT_FOUND,e);
-		} catch(ValidationException|InvalidDataException e) {
+		} catch(ValidationException e) {
 			log.debug("[Controller Layer] (New category phase) returning an exception");
 			return getResponseArtifactForErrors(converter.castToOutput(request),CRT_PHASE,HttpStatus.BAD_REQUEST,e);
+		} catch(InternalValidationErrorException e) {
+			log.debug("[Controller Layer] (New category phase) returning an exception");
+			return getResponseArtifactForErrors(converter.castToOutput(request),CRT_PHASE,HttpStatus.INTERNAL_SERVER_ERROR,e);	
 		}
 		log.debug("[Controller Layer] (New category phase) returning result");
 		
@@ -105,10 +108,14 @@ public class CategoryController {
 		} catch(CustomerNotFound|CategoryNotFoundException e){	
 			log.debug("[Controller Layer] (Update category) returning an exception");
 			return getResponseArtifactForErrors(converter.castToOutput(input),UPD_PHASE,HttpStatus.NOT_FOUND,e);
-		} catch(ValidationException|InvalidDataException e) {		
+		} catch(ValidationException e) {		
 			log.debug("[Controller Layer] (Update category) returning an exception");
 			return getResponseArtifactForErrors(converter.castToOutput(input),UPD_PHASE,HttpStatus.BAD_REQUEST,e);
-		} 
+		} catch(InternalValidationErrorException e) {
+			log.debug("[Controller Layer] (New category phase) returning an exception");
+			return getResponseArtifactForErrors(converter.castToOutput(input),CRT_PHASE,HttpStatus.INTERNAL_SERVER_ERROR,e);	
+		}
+		
 		log.debug("[Controller Layer] (Update category) returning result");
 		response.setBody(output);
 		

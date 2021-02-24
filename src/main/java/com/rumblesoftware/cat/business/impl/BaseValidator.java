@@ -2,7 +2,7 @@ package com.rumblesoftware.cat.business.impl;
 
 import org.springframework.stereotype.Component;
 
-import com.rumblesoftware.cat.exceptions.InvalidDataException;
+import com.rumblesoftware.cat.exceptions.InternalValidationErrorException;
 import com.rumblesoftware.cat.exceptions.ValidationException;
 
 @Component
@@ -14,5 +14,5 @@ public abstract class BaseValidator<O> {
 		this.nextValidator = val;
 	}
 	
-	public abstract void validate(O input) throws InvalidDataException, ValidationException;
+	public abstract void validate(O input) throws InternalValidationErrorException, ValidationException;
 }
