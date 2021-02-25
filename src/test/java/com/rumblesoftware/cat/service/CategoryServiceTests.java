@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -18,13 +19,16 @@ import org.mockito.junit.MockitoRule;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.rumblesoftware.cat.business.impl.UserExistanceValidator;
 import com.rumblesoftware.cat.exceptions.CategoryNotFoundException;
+import com.rumblesoftware.cat.exceptions.CustomerNotFound;
 import com.rumblesoftware.cat.exceptions.ValidationException;
 import com.rumblesoftware.cat.io.input.dto.CategoryInputDTO;
 import com.rumblesoftware.cat.io.input.dto.CategoryPatchInputDTO;
@@ -49,6 +53,11 @@ public class CategoryServiceTests {
 	private static final Long NON_EXISTANT_CATEGORY_ID = 2000L;
 	private static final Long EXISTANT_CUSTOMER_ID = 1L;
 	private static final Long NON_EXISTANT_CUSTOMER_ID = 2L;
+	
+	private static final Long VAL_CAT_ID_TO_DEL = 1002L;
+	private static final Long INVAL_CAT_ID_TO_DEL = 9002L;
+	private static final Long INVAL_CUST_ID_TO_DEL = 9000L;
+	private static final String VAL_CAT_NAME_TO_DEL = "deleted_category";
 	
 	
 	
@@ -127,6 +136,26 @@ public class CategoryServiceTests {
 		service.getAllCustomerCat(NON_EXISTANT_CUSTOMER_ID);
 	}
 	
+	@Test
+	@AfterAll
+	public void delCatOkTest() {
+		CategoryOutputDTO dto = 
+				service.removeCategory(EXISTANT_CUSTOMER_ID, VAL_CAT_ID_TO_DEL);
+		assertTrue(dto.getCategoryName().equals(VAL_CAT_NAME_TO_DEL));
+	}
+	
+	@Test(expected = CategoryNotFoundException.class)
+	public void delCatInvIdTest() {
+		service.removeCategory(EXISTANT_CUSTOMER_ID, INVAL_CAT_ID_TO_DEL);
+	}
+	
+	@Test(expected = CustomerNotFound.class)
+	public void delCatInvCustIdTest() {
+		Mockito.when(restTemplate.getForEntity(Mockito.any(), Mockito.any(), Mockito.anyMap()))
+		.thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+		
+		service.removeCategory(INVAL_CUST_ID_TO_DEL, VAL_CAT_ID_TO_DEL);
+	}	
 	
 	
 	private CategoryInputDTO buildInput() {

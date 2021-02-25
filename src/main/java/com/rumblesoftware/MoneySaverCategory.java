@@ -66,21 +66,4 @@ public class MoneySaverCategory {
 		return bean;
 	}
 	
-//	@Bean
-//	@Profile("!webtest")
-//    public RestTemplate restTemplate() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-//        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-//
-//        RestTemplate restTemplate = new RestTemplate(requestFactory);
-//
-//
-//        List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
-//        if (interceptors.isEmpty()) {
-//            interceptors = new ArrayList<>();
-//        }
-//        interceptors.add(new LoggingInterceptor());
-//        restTemplate.setInterceptors(interceptors);
-//
-//        return restTemplate;
-//    }
 }

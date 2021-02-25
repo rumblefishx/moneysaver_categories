@@ -1,12 +1,12 @@
 package com.rumblesoftware.cat.business.impl;
 
 import java.util.Optional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.rumblesoftware.cat.controller.CategoryController;
 import com.rumblesoftware.cat.exceptions.InternalValidationErrorException;
 import com.rumblesoftware.cat.exceptions.ValidationException;
 import com.rumblesoftware.cat.io.CandidateToValidationData;
