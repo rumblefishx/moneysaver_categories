@@ -1,13 +1,13 @@
 package com.rumblesoftware.cat.business.impl;
 
 import java.util.Optional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.rumblesoftware.cat.controller.CategoryController;
-import com.rumblesoftware.cat.exceptions.InvalidDataException;
+import com.rumblesoftware.cat.exceptions.InternalValidationErrorException;
 import com.rumblesoftware.cat.exceptions.ValidationException;
 import com.rumblesoftware.cat.io.CandidateToValidationData;
 import com.rumblesoftware.cat.model.CategoryEntity;
@@ -24,7 +24,10 @@ public class CategoryExistanceValidator extends BaseValidator<CandidateToValidat
 	private Logger log = LogManager.getLogger(CategoryExistanceValidator.class);
 	
 	@Override
-	public void validate(CandidateToValidationData input) throws InvalidDataException, ValidationException{
+	public void validate(CandidateToValidationData input) throws InternalValidationErrorException, ValidationException{
+		
+		log.debug("[Validation Layer] - Starting Category Validation...");
+		
 		Optional<CategoryEntity> cat = 
 			repository.findCategoryByNameAndUser(
 					input.getCustomerId(),

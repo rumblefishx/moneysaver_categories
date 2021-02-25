@@ -1,6 +1,6 @@
 package com.rumblesoftware.cat.exceptions;
 
-public class InvalidDataException extends RuntimeException {
+public class InternalValidationErrorException extends RuntimeException {
 
 	/**
 	 * 
@@ -9,7 +9,7 @@ public class InvalidDataException extends RuntimeException {
 
 	private static final String DEFAULT_ERROR_MSG_CODE = "app.internal.error.message";
 	
-	public InvalidDataException() {
+	public InternalValidationErrorException() {
 		super(DEFAULT_ERROR_MSG_CODE);
 	}
 }

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rumblesoftware.cat.exceptions.CategoryNotFoundException;
 import com.rumblesoftware.cat.exceptions.CustomerNotFound;
-import com.rumblesoftware.cat.exceptions.InvalidDataException;
+import com.rumblesoftware.cat.exceptions.InternalValidationErrorException;
 import com.rumblesoftware.cat.exceptions.ValidationException;
 import com.rumblesoftware.cat.io.IOConverter;
 import com.rumblesoftware.cat.io.input.dto.CategoryInputDTO;
@@ -56,27 +56,30 @@ public class CategoryController {
 		CategoryResponse out = new CategoryResponse(); 
 		CategoryOutputDTO output = null;
 		
-		log.info("[Controller Layer] (New category phase) receiving request...");
+		log.debug("[Controller Layer] (New category phase) receiving request...");
 		
 		if(br.hasErrors()) {
-			log.info("[Controller Layer] (New category phase) delivering validation errors...");
+			log.debug("[Controller Layer] (New category phase) delivering validation errors...");
 			br.getAllErrors().forEach(e -> out.addErrorMessage(e.getDefaultMessage()));
 			out.setBody(converter.castToOutput(request));
 			return ResponseEntity.badRequest().body(out);
 		}
 		
 		try {
-			log.info("[Controller Layer] (New category phase) Calling service layer...");
+			log.debug("[Controller Layer] (New category phase) Calling service layer...");
 			output = service.addNewCategory(request);
-			log.info("[Controller Layer] (New category phase) Leaving service layer...");
+			log.debug("[Controller Layer] (New category phase) Leaving service layer...");
 		} catch(CustomerNotFound e) {
-			log.info("[Controller Layer] (New category phase) returning an exception");
+			log.debug("[Controller Layer] (New category phase) returning an exception");
 			return getResponseArtifactForErrors(converter.castToOutput(request),CRT_PHASE,HttpStatus.NOT_FOUND,e);
-		} catch(ValidationException|InvalidDataException e) {
-			log.info("[Controller Layer] (New category phase) returning an exception");
+		} catch(ValidationException e) {
+			log.debug("[Controller Layer] (New category phase) returning an exception");
 			return getResponseArtifactForErrors(converter.castToOutput(request),CRT_PHASE,HttpStatus.BAD_REQUEST,e);
+		} catch(InternalValidationErrorException e) {
+			log.debug("[Controller Layer] (New category phase) returning an exception");
+			return getResponseArtifactForErrors(converter.castToOutput(request),CRT_PHASE,HttpStatus.INTERNAL_SERVER_ERROR,e);	
 		}
-		log.info("[Controller Layer] (New category phase) returning result");
+		log.debug("[Controller Layer] (New category phase) returning result");
 		
 		out.setBody(output);
 		return ResponseEntity.ok(out);
@@ -86,12 +89,12 @@ public class CategoryController {
 	public ResponseEntity<CategoryResponse> updateCategory(
 			@RequestBody @Valid CategoryPatchInputDTO input,
 			BindingResult br){
-		log.info("[Controller Layer] (Update category) receiving request...");
+		log.debug("[Controller Layer] (Update category) receiving request...");
 		CategoryResponse response = new CategoryResponse();
 		CategoryOutputDTO output = null;
 		
 		if(br.hasErrors()) {
-			log.info("[Controller Layer] (Update category) delivering validation errors...");
+			log.debug("[Controller Layer] (Update category) delivering validation errors...");
 			br.getAllErrors()
 			.forEach(e -> response.addErrorMessage(e.getDefaultMessage()));
 			response.setBody(converter.castToOutput(input));
@@ -99,20 +102,50 @@ public class CategoryController {
 		}
 		
 		try {
-			 log.info("[Controller Layer] (Update category) Calling service layer...");
+			 log.debug("[Controller Layer] (Update category) Calling service layer...");
 			 output = service.updateCategory(input);
-			 log.info("[Controller Layer] (Update category) Leaving service layer...");
+			 log.debug("[Controller Layer] (Update category) Leaving service layer...");
 		} catch(CustomerNotFound|CategoryNotFoundException e){	
-			log.info("[Controller Layer] (Update category) returning an exception");
+			log.debug("[Controller Layer] (Update category) returning an exception");
 			return getResponseArtifactForErrors(converter.castToOutput(input),UPD_PHASE,HttpStatus.NOT_FOUND,e);
-		} catch(ValidationException|InvalidDataException e) {		
-			log.info("[Controller Layer] (Update category) returning an exception");
+		} catch(ValidationException e) {		
+			log.debug("[Controller Layer] (Update category) returning an exception");
 			return getResponseArtifactForErrors(converter.castToOutput(input),UPD_PHASE,HttpStatus.BAD_REQUEST,e);
-		} 
-		log.info("[Controller Layer] (Update category) returning result");
+		} catch(InternalValidationErrorException e) {
+			log.debug("[Controller Layer] (New category phase) returning an exception");
+			return getResponseArtifactForErrors(converter.castToOutput(input),CRT_PHASE,HttpStatus.INTERNAL_SERVER_ERROR,e);	
+		}
+		
+		log.debug("[Controller Layer] (Update category) returning result");
 		response.setBody(output);
 		
 		return ResponseEntity.ok(response);
+	}
+	
+	@RequestMapping(method=RequestMethod.DELETE,value="/category/{catid}/customer/{custid}")
+	public ResponseEntity<CategoryResponse> deleteCategory(
+			@PathVariable Long custid,
+			@PathVariable Long catid){
+		
+		CategoryResponse response = new CategoryResponse();
+		CategoryOutputDTO output = null;
+		
+		try {
+			output = service.removeCategory(custid, catid);
+		} catch(CustomerNotFound|CategoryNotFoundException e){	
+			log.debug("[Controller Layer] (Update category) returning an exception");
+			return getResponseArtifactForErrors(new CategoryOutputDTO(),UPD_PHASE,HttpStatus.NOT_FOUND,e);
+		} catch(ValidationException e) {		
+			log.debug("[Controller Layer] (Update category) returning an exception");
+			return getResponseArtifactForErrors(new CategoryOutputDTO(),UPD_PHASE,HttpStatus.BAD_REQUEST,e);
+		} catch(InternalValidationErrorException e) {
+			log.debug("[Controller Layer] (New category phase) returning an exception");
+			return getResponseArtifactForErrors(new CategoryOutputDTO(),CRT_PHASE,HttpStatus.INTERNAL_SERVER_ERROR,e);	
+		}
+		
+		response.setBody(output);
+		
+		return null;
 	}
 	
 	@RequestMapping(method=RequestMethod.GET,value = "/category/{catid}/customer/{custid}")
@@ -121,20 +154,20 @@ public class CategoryController {
 			@PathVariable("custid") Long custid){
 		CategoryResponse response = new CategoryResponse();
 		
-		log.info("[Controller Layer] (Find category by ids) receiving request...");
+		log.debug("[Controller Layer] (Find category by ids) receiving request...");
 		
 		try {
-			log.info("[Controller Layer] (Find category by ids) Calling service layer...");
+			log.debug("[Controller Layer] (Find category by ids) Calling service layer...");
 			response.setBody(service.findCategoryById(custid, catid));
 		} catch(CategoryNotFoundException e) {
-			log.info("[Controller Layer] (Find category by ids) Delivering exception in the response body");
+			log.debug("[Controller Layer] (Find category by ids) Delivering exception in the response body");
 			e.printStackTrace();
 			response.setBody(new CategoryOutputDTO());
 			response.addErrorMessage(po.getMessage(CAT_NOT_FIND_ERROR));	
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 		}		
 		
-		log.info("[Controller Layer] (Find category by ids) Returning result...");
+		log.debug("[Controller Layer] (Find category by ids) Returning result...");
 		return ResponseEntity.ok(response);
 	}
 	
@@ -142,19 +175,19 @@ public class CategoryController {
 	private ResponseEntity<CategoriesResponse> getUserCategories(@PathVariable Long customerId){
 		CategoriesResponse response = new CategoriesResponse();
 		
-		log.info("[Controller Layer] (Find categories by user id) receiving request...");
+		log.debug("[Controller Layer] (Find categories by user id) receiving request...");
 		try {
-			log.info("[Controller Layer] (Find categories by user id) calling service layer...");
+			log.debug("[Controller Layer] (Find categories by user id) calling service layer...");
 			response.setBodyItems(service.getAllCustomerCat(customerId));
-			log.info("[Controller Layer] (Find categories by user id) leaving service layer...");
+			log.debug("[Controller Layer] (Find categories by user id) leaving service layer...");
 		} catch(CategoryNotFoundException e) {
-			log.info("[Controller Layer] (Find categories by user id) delivering an exception as result...");
+			log.debug("[Controller Layer] (Find categories by user id) delivering an exception as result...");
 			e.printStackTrace();				
 			response.addError(po.getMessage(CAT_NOT_FIND_ERROR));
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 		}
 		
-		log.info("[Controller Layer] (Find categories by user id) delivering results...");
+		log.debug("[Controller Layer] (Find categories by user id) delivering results...");
 		return ResponseEntity.ok(response);
 	}
 	
