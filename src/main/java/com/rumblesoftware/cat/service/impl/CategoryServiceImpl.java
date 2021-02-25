@@ -36,6 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
 	
 	@Autowired
 	private UserExistanceValidator userVal;
+
 	
 	private Logger log = LogManager.getLogger(CategoryController.class);
 	
@@ -66,8 +67,26 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public CategoryOutputDTO removeCategory(Long customerId, Long categoryId) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		log.debug("[Service Layer] (Remove category phase) - Initializing validations...");
+		
+		CandidateToValidationData data =
+				new CandidateToValidationData(customerId, categoryId);
+		
+		userVal.validate(data);		
+		
+		Optional<CategoryEntity> cat = 
+			repository.findCategoryByIds(customerId,categoryId);
+		
+		if(!cat.isPresent()) {
+			log.error("[validation layer] Category doesn't exists...");
+			throw new CategoryNotFoundException();
+		}
+
+		log.debug("[Service Layer] (Remove category phase) - removing data... ");
+		repository.delete(cat.get());		
+		
+		return converter.castToOutput(cat.get());
 	}
 
 	@Override

@@ -122,6 +122,32 @@ public class CategoryController {
 		return ResponseEntity.ok(response);
 	}
 	
+	@RequestMapping(method=RequestMethod.DELETE,value="/category/{catid}/customer/{custid}")
+	public ResponseEntity<CategoryResponse> deleteCategory(
+			@PathVariable Long custid,
+			@PathVariable Long catid){
+		
+		CategoryResponse response = new CategoryResponse();
+		CategoryOutputDTO output = null;
+		
+		try {
+			output = service.removeCategory(custid, catid);
+		} catch(CustomerNotFound|CategoryNotFoundException e){	
+			log.debug("[Controller Layer] (Update category) returning an exception");
+			return getResponseArtifactForErrors(new CategoryOutputDTO(),UPD_PHASE,HttpStatus.NOT_FOUND,e);
+		} catch(ValidationException e) {		
+			log.debug("[Controller Layer] (Update category) returning an exception");
+			return getResponseArtifactForErrors(new CategoryOutputDTO(),UPD_PHASE,HttpStatus.BAD_REQUEST,e);
+		} catch(InternalValidationErrorException e) {
+			log.debug("[Controller Layer] (New category phase) returning an exception");
+			return getResponseArtifactForErrors(new CategoryOutputDTO(),CRT_PHASE,HttpStatus.INTERNAL_SERVER_ERROR,e);	
+		}
+		
+		response.setBody(output);
+		
+		return null;
+	}
+	
 	@RequestMapping(method=RequestMethod.GET,value = "/category/{catid}/customer/{custid}")
 	public ResponseEntity<CategoryResponse> findCategoryById(
 			@PathVariable("catid") Long catid,

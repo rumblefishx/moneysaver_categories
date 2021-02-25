@@ -27,4 +27,5 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Catego
 	@Query(value = "Select c from TCategory c where c.customerId = :customerId")
 	public Optional<List<CategoryEntity>> findCategoriesByCustomer(
 			@Param("customerId") Long customerId);
+
 }
